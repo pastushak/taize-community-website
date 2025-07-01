@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Заборонити індексацію адмін-панелі
+Disallow: /#admin
+
+# Посилання на sitemap
+Sitemap: https://yourusername.github.io/taize-community/sitemap.xml
+
+# Час затримки між запитами (мілісекунди)
+Crawl-delay: 1

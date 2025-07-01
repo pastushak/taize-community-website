@@ -17,7 +17,7 @@
     <meta property="og:title" content="Спільнота молитви в дусі Тезе">
     <meta property="og:description" content="Молитовні зустрічі в дусі Тезе об'єднують людей різних конфесій у спільній молитві">
     <meta property="og:image" content="icons/android-chrome-512x512.png">
-    <meta property="og:url" content="https://your-username.github.io/taize-community">
+    <meta property="og:url" content="https://pastushak.github.io/taize-community">
     <meta property="og:type" content="website">
     
     <meta name="twitter:card" content="summary">
@@ -28,6 +28,56 @@
     <!-- Кольори теми -->
     <meta name="theme-color" content="#2563eb">
     <meta name="msapplication-TileColor" content="#2563eb">
+
+        <!-- SEO мета-теги -->
+    <meta name="description" content="Молитовні зустрічі в дусі спільноти Тезе в Західній Україні. Інтерактивна карта подій, календар зустрічей, фотогалерея. Приєднуйтесь до нашої спільноти молитви.">
+    <meta name="keywords" content="Тезе, молитва, спільнота, Україна, УГКЦ, екуменізм, Івано-Франківськ, Львів, Тернопіль, Коломия">
+    <meta name="author" content="Спільнота Тезе України">
+    <meta name="robots" content="index, follow">
+
+    <!-- Географічні мета-теги -->
+    <meta name="geo.region" content="UA">
+    <meta name="geo.placename" content="Західна Україна">
+    <meta name="geo.position" content="49.0;24.5">
+    <meta name="ICBM" content="49.0, 24.5">
+
+    <!-- Мова -->
+    <meta http-equiv="content-language" content="uk">
+
+    <!-- Структуровані дані для Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Спільнота молитви в дусі Тезе",
+      "description": "Молитовні зустрічі в дусі спільноти Тезе Коломийської єпархії УГКЦ",
+      "url": "https://yourusername.github.io/taize-community",
+      "@id": "https://yourusername.github.io/taize-community/#organization",
+      "logo": "https://yourusername.github.io/taize-community/icons/android-chrome-512x512.png",
+      "foundingDate": "2024",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Ukraine"
+      },
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "Коломийська єпархія УГКЦ"
+      },
+      "sameAs": [
+        "https://taize.fr/uk"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "general inquiries",
+        "email": "info@taize-ukraine.org"
+      }
+    }
+    </script>
+
+    <!-- Безпека -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
@@ -257,6 +307,42 @@
     <script src="js/main.js"></script>
     <script src="js/map.js"></script>
     <script src="js/admin.js"></script>
+
+    <!-- Service Worker для PWA -->
+    <script>
+    // Реєстрація Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/taize-community/sw.js')
+          .then(registration => {
+            console.log('SW registered: ', registration);
+          })
+          .catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+
+    // Пропозиція встановлення PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Показати пропозицію встановлення через 30 секунд
+      setTimeout(() => {
+        if (deferredPrompt) {
+          const installPrompt = confirm('Встановити додаток на домашній екран?');
+          if (installPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              deferredPrompt = null;
+            });
+          }
+        }
+      }, 30000);
+    });
+    </script>
   </body>
 
 </html>
