@@ -1,6 +1,7 @@
 /**
  * Модуль адміністрування для сайту спільноти Тезе
  * Відповідає за управління подіями, валідацію, геолокацію та імпорт/експорт
+ * Версія з Google Sheets інтеграцією
  */
 
 class AdminManager {
@@ -40,6 +41,7 @@ class AdminManager {
       this.setupPreview();
       this.setupImportExport();
       this.setupAdvancedFeatures();
+      this.setupGoogleSheetsIntegration(); // Google Sheets інтеграція
 
       this.isInitialized = true;
       console.log('Адмін-панель ініціалізована успішно');
@@ -370,7 +372,7 @@ class AdminManager {
     const lngInput = document.getElementById('event-lng');
 
     if (latInput) latInput.value = lat.toFixed(6);
-    if (lngInput) lng.value = lng.toFixed(6);
+    if (lngInput) lngInput.value = lng.toFixed(6);
 
     this.validateCoordinatesRealtime();
   }
@@ -1294,6 +1296,100 @@ ${data.metadata ? `\nДата експорту: ${new Date(data.metadata.exportD
   }
 
   /**
+   * Налаштування Google Sheets інтеграції
+   */
+  setupGoogleSheetsIntegration() {
+    const adminSection = document.getElementById('admin-section');
+    if (!adminSection) return;
+
+    // Створюємо секцію Google Sheets
+    const sheetsDiv = document.createElement('div');
+    sheetsDiv.className = 'sheets-integration-section';
+    sheetsDiv.innerHTML = `
+      <div style="margin: 30px 0; padding: 25px; border: 2px solid #4285f4; border-radius: 12px; background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);">
+        <h3 style="color: #1976d2; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          📊 Google Sheets Інтеграція
+          <span id="sheets-status" style="font-size: 12px; padding: 4px 8px; border-radius: 20px; background: #4caf50; color: white;">Активна</span>
+        </h3>
+        
+        <p style="color: #555; margin-bottom: 20px; line-height: 1.5;">
+          Синхронізація з Google Sheets дозволяє централізовано управляти подіями та надавати доступ кільком адміністраторам.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <button onclick="syncFromSheets()" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+            🔄 Синхронізувати дані
+          </button>
+          
+          <button onclick="openSheetsTable()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+            📊 Відкрити таблицю
+          </button>
+          
+          <button onclick="testSheetsConnection()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+            🔌 Тест з'єднання
+          </button>
+          
+          <button onclick="showSheetsInstructions()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+            📖 Інструкції
+          </button>
+        </div>
+        
+        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
+          <h4 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">📈 Статус синхронізації:</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+            <div>
+              <strong>Остання синхронізація:</strong>
+              <span id="last-sync-time">Ще не синхронізовано</span>
+            </div>
+            <div>
+              <strong>Таблиця:</strong>
+              <a href="#" onclick="openSheetsTable(); return false;" style="color: #1976d2;">Переглянути →</a>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border: 1px solid #ffd60a; border-radius: 6px;">
+          <p style="margin: 0; font-size: 13px; color: #856404;">
+            💡 <strong>Рекомендації:</strong> Нові події додавайте прямо в Google Sheets, потім синхронізуйте. 
+            Для історичних даних використовуйте масовий імпорт в таблицю.
+          </p>
+        </div>
+      </div>
+    `;
+
+    // Додаємо після секції управління даними
+    const importExportSection = adminSection.querySelector('.import-export-section');
+    if (importExportSection) {
+      importExportSection.parentNode.insertBefore(sheetsDiv, importExportSection.nextSibling);
+    } else {
+      adminSection.appendChild(sheetsDiv);
+    }
+
+    // Оновлюємо статус кожні 30 секунд
+    this.updateSheetsStatus();
+    setInterval(() => this.updateSheetsStatus(), 30000);
+  }
+
+  /**
+   * Оновлення статусу Google Sheets
+   */
+  updateSheetsStatus() {
+    const statusElement = document.getElementById('sheets-status');
+    const lastSyncElement = document.getElementById('last-sync-time');
+    
+    if (window.sheetsDB) {
+      if (statusElement) {
+        statusElement.textContent = window.sheetsDB.isEnabled ? 'Активна' : 'Вимкнена';
+        statusElement.style.background = window.sheetsDB.isEnabled ? '#4caf50' : '#f44336';
+      }
+      
+      if (lastSyncElement) {
+        lastSyncElement.textContent = window.sheetsDB.getLastSyncStatus();
+      }
+    }
+  }
+
+  /**
    * Утилітарні функції
    */
 
@@ -1431,6 +1527,45 @@ let adminManager;
 document.addEventListener('DOMContentLoaded', () => {
   adminManager = new AdminManager();
 });
+
+// Глобальні функції для Google Sheets
+function showSheetsInstructions() {
+  const instructions = `
+📊 Робота з Google Sheets інтеграцією:
+
+🔄 СИНХРОНІЗАЦІЯ:
+• "Синхронізувати дані" - завантажує всі події з таблиці
+• Виконується автоматично при завантаженні сайту
+• Локальні дані зберігаються як резервна копія
+
+📝 ДОДАВАННЯ ПОДІЙ:
+1. Спосіб 1: Через сайт (додається локально + інструкції для Sheets)
+2. Спосіб 2: Прямо в Google Sheets + синхронізація
+
+📊 РОБОТА З ТАБЛИЦЕЮ:
+• Кожен рядок = одна подія
+• Не видаляйте заголовки (рядок 1)
+• Використовуйте формат дати: YYYY-MM-DD HH:MM
+• Координати: числа з 6 знаками після коми
+
+🔧 НАЛАГОДЖЕННЯ:
+• "Тест з'єднання" - перевіряє доступ до таблиці
+• При помилках перевірте налаштування доступу
+• Таблиця має бути публічною для читання
+
+💡 ПОРАДИ:
+• Робіть синхронізацію після змін в таблиці
+• Історичні дані імпортуйте масово в Sheets
+• Використовуйте один пристрій для основного редагування
+
+🚨 ВАЖЛИВО:
+• Синхронізація замінює локальні дані на дані з Sheets
+• Завжди робіть резервні копії через експорт
+• При проблемах дані залишаються в localStorage
+  `;
+  
+  alert(instructions);
+}
 
 // Експорт для можливого використання як модуль
 if (typeof module !== 'undefined' && module.exports) {
