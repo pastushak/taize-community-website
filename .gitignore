@@ -1,0 +1,7 @@
+echo "# Файли для ігнорування
+*.log
+.DS_Store
+node_modules/
+.vscode/settings.json
+images/temp/
+*.tmp" > .gitignore

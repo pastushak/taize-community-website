@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Спільнота Тезе - Молитовні зустрічі</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+
+  <body>
+    <!-- Заголовок -->
+    <header>
+      <div class="container">
+        <h1>Спільнота молитви в дусі Тезе Коломийської єпархії УГКЦ</h1>
+        <p class="subtitle">молитовні зустрічі в дусі Тезе</p>
+      </div>
+    </header>
+
+    <!-- Навігація -->
+    <nav>
+      <div class="container">
+        <button onclick="showSection('map')" class="active" id="map-btn">Минулі зустрічі</button>
+        <button onclick="showSection('future')" id="future-btn">Майбутні події</button>
+        <button onclick="showSection('media')" id="media-btn">Про спільноту</button>
+      </div>
+    </nav>
+
+    <!-- Основний контент з сайдбаром -->
+    <div class="main-layout">
+      <div class="container">
+        <div class="content-wrapper">
+          <!-- Головний контент -->
+          <main class="main-content">
+            <!-- Секція карти -->
+            <div class="map-container" id="map-section">
+              <div id="map"></div>
+            </div>
+
+            <!-- Секція майбутніх подій -->
+            <div class="future-events" id="future-section">
+              <h2>Майбутні події</h2>
+              <p class="text-muted">Тут будуть відображатися заплановані молитовні зустрічі.</p>
+              <div class="event-list" id="future-events-list">
+                <!-- Майбутні події будуть додаватися тут -->
+              </div>
+            </div>
+
+            <!-- Секція ЗМІ -->
+            <div class="media-mentions" id="media-section">
+              <h2>ЗМІ про нас</h2>
+              <p class="text-muted">Згадки про спільноту Тезе в засобах масової інформації.</p>
+              <div class="event-list" id="media-list">
+                <!-- Згадки в ЗМІ будуть додаватися тут -->
+              </div>
+            </div>
+
+            <!-- Адмін панель -->
+            <div class="admin-panel" id="admin-section">
+              <h2>Додати нову подію</h2>
+              <form id="event-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="event-title">Назва події</label>
+                    <input type="text" id="event-title" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="event-date">Дата та час</label>
+                    <input type="datetime-local" id="event-date" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="event-location">Місце проведення</label>
+                  <input type="text" id="event-location" required>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="event-lat">Широта</label>
+                    <input type="number" step="any" id="event-lat" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="event-lng">Довгота</label>
+                    <input type="number" step="any" id="event-lng" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="event-description">Короткий опис</label>
+                  <textarea id="event-description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="event-full-description">Повний опис</label>
+                  <textarea id="event-full-description" rows="6"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label for="event-program-link">Посилання на програму молитви</label>
+                  <input type="url" id="event-program-link">
+                </div>
+
+                <div class="form-group">
+                  <label for="event-photos">Фотографії (URLs, розділені комами)</label>
+                  <textarea id="event-photos"
+                    placeholder="https://example.com/photo1.jpg, https://example.com/photo2.jpg"></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">Додати подію</button>
+                  <button type="button" class="btn btn-secondary" onclick="clearForm()">Очистити форму</button>
+                </div>
+              </form>
+
+              <h3>Існуючі події</h3>
+              <div class="event-list" id="admin-events-list">
+                <!-- Події будуть відображатися тут -->
+              </div>
+            </div>
+          </main>
+
+          <!-- Сайдбар -->
+          <aside class="sidebar">
+            <div class="sidebar-content">
+              <h3 class="sidebar-title">Недавні події</h3>
+              <p class="sidebar-subtitle">Останні молитовні зустрічі</p>
+              <div class="recent-events" id="recent-events-list">
+                <!-- Недавні події будуть додаватися тут -->
+              </div>
+
+              <!-- Статистика -->
+              <div class="sidebar-section">
+                <h4 class="sidebar-section-title">Статистика</h4>
+                <div class="stats-list" id="stats-container">
+                  <!-- Статистика буде додаватися тут -->
+                </div>
+              </div>
+
+              <!-- Швидкі посилання -->
+              <div class="sidebar-section">
+                <h4 class="sidebar-section-title">Швидкі дії</h4>
+                <div class="quick-links">
+                  <button onclick="exportAllEvents()" class="quick-link-btn">
+                    <span>📥</span>
+                    Експорт подій
+                  </button>
+                  <button onclick="showUpcomingEvents()" class="quick-link-btn">
+                    <span>📅</span>
+                    Майбутні події
+                  </button>
+                  <button onclick="showSection('map')" class="quick-link-btn">
+                    <span>🗺️</span>
+                    Повернутись до карти
+                  </button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-main">
+            <h3 class="footer-title">Спільнота Тезе</h3>
+            <p class="footer-description">
+              Молитовні зустрічі в дусі спільноти Тезе об'єднують людей різних конфесій
+              у спільній молитві, медитації та читанні Священного Писання.
+            </p>
+            <div class="footer-links">
+              <a href="https://taize.fr/uk" target="_blank" class="footer-link">Офіційний сайт Тезе</a>
+              <a href="mailto:info@taize-ukraine.org" class="footer-link">Контакти</a>
+            </div>
+          </div>
+
+          <div class="footer-sidebar">
+            <h4 class="footer-section-title">Регіони</h4>
+            <ul class="footer-region-list">
+              <li>Івано-Франківська область</li>
+              <li>Львівська область</li>
+              <li>Тернопільська область</li>
+              <li>Чернівецька область</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <div class="footer-copyright">
+            <p>&copy; 2025 Спільнота Тезе в Західній Україні. Всі права захищені.</p>
+          </div>
+
+          <!-- Прихована іконка адміністрування -->
+          <div class="footer-admin">
+            <button onclick="showSection('admin')" class="admin-icon-btn" title="Адміністрування"
+              aria-label="Перейти до панелі адміністрування">
+              🔧
+            </button>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Модальне вікно для деталей події -->
+    <div id="event-modal" class="modal">
+      <div class="modal-content">
+        <button class="close" aria-label="Закрити">&times;</button>
+        <div id="modal-content">
+          <!-- Контент події буде завантажуватися тут -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальне вікно для перегляду фото -->
+    <div id="image-modal" class="modal">
+      <div class="modal-content image-modal-content">
+        <button class="close" id="image-close" aria-label="Закрити">&times;</button>
+        <img id="modal-image" src="" alt="Збільшене фото">
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/admin.js"></script>
+  </body>
+
+</html>
