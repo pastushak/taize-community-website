@@ -1,0 +1,57 @@
+{
+  "name": "Спільнота молитви в дусі Тезе",
+  "short_name": "Тезе",
+  "description": "Молитовні зустрічі в дусі Тезе Коломийської єпархії УГКЦ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "social"],
+  "screenshots": [
+    {
+      "src": "icons/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "icons/screenshot-narrow.png", 
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Карта подій",
+      "short_name": "Карта",
+      "description": "Переглянути всі події на карті",
+      "url": "/#map",
+      "icons": [{"src": "icons/android-chrome-192x192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Майбутні події",
+      "short_name": "Події",
+      "description": "Переглянути майбутні зустрічі",
+      "url": "/#future",
+      "icons": [{"src": "icons/android-chrome-192x192.png", "sizes": "192x192"}]
+    }
+  ]
+}
