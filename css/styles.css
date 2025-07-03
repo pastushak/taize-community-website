@@ -273,11 +273,14 @@ nav button.active::after {
   transition: var(--transition);
   cursor: pointer;
   background: var(--color-background-alt);
+  position: relative;
+  transition: all 0.2s ease;
 }
 
 .recent-event-item:hover {
   border-color: var(--color-border-dark);
-  transform: translateY(-1px);
+  background: #f0f9ff;
+  transform: translateX(2px);
 }
 
 .recent-event-date {
@@ -297,10 +300,34 @@ nav button.active::after {
   margin-bottom: var(--spacing-xs);
 }
 
+.recent-event-item[title] {
+  cursor: pointer;
+}
+
 .recent-event-location {
   font-size: 0.75rem;
   color: var(--color-text-muted);
   line-height: 1.2;
+}
+
+.recent-event-location span {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+/* Стилі для блоку синхронізації */
+#sync-info-sidebar {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+#sync-info-sidebar .sync-info-content {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
 }
 
 /* Статистика */

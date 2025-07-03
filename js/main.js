@@ -868,6 +868,56 @@ class TaizeCommunityApp {
   updateSidebar() {
     this.updateRecentEvents();
     this.updateStatistics();
+    this.updateSyncInfo();
+  }
+
+  /**
+   * Оновлення інформації про синхронізацію в сайдбарі
+   */
+  updateSyncInfo() {
+    const sidebarContent = document.querySelector('.sidebar-content');
+    if (!sidebarContent) return;
+
+    // Перевіряємо, чи є вже блок
+    let syncInfo = document.getElementById('sync-info-sidebar');
+    
+    if (!syncInfo) {
+      syncInfo = document.createElement('div');
+      syncInfo.id = 'sync-info-sidebar';
+      syncInfo.className = 'sidebar-section';
+      syncInfo.innerHTML = `
+        <h4 class="sidebar-section-title">Синхронізація</h4>
+        <div class="sync-info-content"></div>
+      `;
+      sidebarContent.appendChild(syncInfo);
+    }
+
+    const syncContent = syncInfo.querySelector('.sync-info-content');
+    if (syncContent && window.sheetsDB) {
+      const lastSync = window.sheetsDB.getLastSyncStatus();
+      const cacheStatus = window.sheetsDB.getCacheStatus();
+      
+      syncContent.innerHTML = `
+        <div style="font-size: 12px; color: #6b7280; line-height: 1.4;">
+          <div style="margin-bottom: 5px;">
+            📊 Google Sheets: <span style="color: #4285f4;">${lastSync}</span>
+          </div>
+          <div style="margin-bottom: 8px;">
+            💾 ${cacheStatus}
+          </div>
+          <button onclick="syncFromSheets()" style="
+            font-size: 11px; 
+            padding: 4px 8px; 
+            background: #4285f4; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            width: 100%;
+          ">🔄 Оновити</button>
+        </div>
+      `;
+    }
   }
 
   /**
@@ -878,28 +928,43 @@ class TaizeCommunityApp {
     if (!container) return;
 
     const now = new Date();
+    
+    // Фільтруємо та сортуємо події
     const recentEvents = this.events
-      .filter(event => new Date(event.date) < now) // Тільки минулі події
-      .sort((a, b) => new Date(b.date) - new Date(a.date)) // Сортування за датою (новіші спочатку)
-      .slice(0, 6); // Беремо останні 6 подій
+      .filter(event => {
+        const eventDate = new Date(event.date);
+        return eventDate < now && // Тільки минулі події
+              event.title && // Має бути назва
+              event.location; // Має бути локація
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date)) // Новіші спочатку
+      .slice(0, 6); // Останні 6 подій
 
     if (recentEvents.length === 0) {
       container.innerHTML = `
-                <div class="recent-event-item">
-                    <div class="recent-event-title">Поки що немає подій</div>
-                    <div class="recent-event-location">Додайте першу подію через адмін-панель</div>
-                </div>
-            `;
+        <div class="recent-event-item">
+          <div class="recent-event-title">Поки що немає подій</div>
+          <div class="recent-event-location">
+            ${this.events.length === 0 ? 
+              'Завантажуємо дані з Google Sheets...' : 
+              'Додайте першу подію через Google Sheets'
+            }
+          </div>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = recentEvents.map(event => `
-            <div class="recent-event-item" onclick="app.showEventDetails(${event.id})">
-                <div class="recent-event-date">${this.formatDateShort(event.date)}</div>
-                <div class="recent-event-title">${this.escapeHtml(event.title)}</div>
-                <div class="recent-event-location">${this.escapeHtml(event.location)}</div>
-            </div>
-        `).join('');
+      <div class="recent-event-item" onclick="app.showEventDetails(${event.id})" title="Клікніть для деталей">
+        <div class="recent-event-date">${this.formatDateShort(event.date)}</div>
+        <div class="recent-event-title">${this.escapeHtml(event.title)}</div>
+        <div class="recent-event-location">
+          📍 ${this.escapeHtml(event.location)}
+          ${event.source === 'sheets' ? '<span style="color: #4285f4; font-size: 10px;">📊</span>' : ''}
+        </div>
+      </div>
+    `).join('');
   }
 
   /**

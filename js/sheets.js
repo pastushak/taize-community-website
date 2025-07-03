@@ -166,8 +166,10 @@ class GoogleSheetsDB {
         // Заміняємо дані на дані з Sheets
         if (window.app) {
           window.app.events = sheetsEvents;
-          window.app.saveEvents(); // Зберігаємо локально як кеш
-          window.app.refreshUI();
+          window.app.saveEvents();
+          
+          // ДОДАТИ: примусове оновлення сайдбара
+          window.app.forceRefreshUI();
         }
         
         this.showSuccess(`Синхронізовано ${sheetsEvents.length} подій з Google Sheets`);
