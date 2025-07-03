@@ -126,72 +126,32 @@
 
             <!-- Секція ЗМІ -->
             <div class="media-mentions" id="media-section">
-              <h2>ЗМІ про нас</h2>
-              <p class="text-muted">Згадки про спільноту Тезе в засобах масової інформації.</p>
-              <div class="event-list" id="media-list">
-                <!-- Згадки в ЗМІ будуть додаватися тут -->
+              <h2>Про спільноту</h2>
+              <div class="about-content">
+                <h3>Що таке Тезе?</h3>
+                <p>Тезе — це екуменічна спільнота, заснована в 1940 році в Бургундії (Франція) братом Роже Шютцом. Спільнота об'єднує молодих людей з різних християнських конфесій для спільної молитви, служіння та пошуку єдності.</p>
+                
+                <h3>Молитва в дусі Тезе</h3>
+                <p>Молитовні зустрічі в дусі Тезе характеризуються:</p>
+                <ul>
+                  <li>Простими, повторюваними піснями різними мовами</li>
+                  <li>Періодами тиші для особистої молитви</li>
+                  <li>Читанням Священного Писання</li>
+                  <li>Свічками та іконами як символами молитви</li>
+                  <li>Атмосферою миру та споглядання</li>
+                </ul>
+                
+                <h3>Наша спільнота</h3>
+                <p>Спільнота молитви в дусі Тезе Коломийської єпархії УГКЦ об'єднує людей різних віків і конфесій, які прагнуть поглибити свою духовну життя через спільну молитву. Ми регулярно збираємося для молитовних зустрічей у різних містах Західної України.</p>
+                
+                <h3>Як долучитися</h3>
+                <p>Усі бажаючі запрошуються на наші молитовні зустрічі. Не потрібно попередньо реєструватися — просто приходьте з відкритим серцем. Інформацію про майбутні зустрічі можна знайти в розділі "Майбутні події" або на нашій сторінці в Google Sheets.</p>
               </div>
             </div>
 
             <!-- Адмін панель -->
             <div class="admin-panel" id="admin-section">
               <h2>Додати нову подію</h2>
-              <form id="event-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="event-title">Назва події</label>
-                    <input type="text" id="event-title" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="event-date">Дата та час</label>
-                    <input type="datetime-local" id="event-date" required>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="event-location">Місце проведення</label>
-                  <input type="text" id="event-location" required>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="event-lat">Широта</label>
-                    <input type="number" step="any" id="event-lat" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="event-lng">Довгота</label>
-                    <input type="number" step="any" id="event-lng" required>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="event-description">Короткий опис</label>
-                  <textarea id="event-description" required></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label for="event-full-description">Повний опис</label>
-                  <textarea id="event-full-description" rows="6"></textarea>
-                </div>
-
-                <div class="form-group">
-                  <label for="event-program-link">Посилання на програму молитви</label>
-                  <input type="url" id="event-program-link">
-                </div>
-
-                <div class="form-group">
-                  <label for="event-photos">Фотографії (URLs, розділені комами)</label>
-                  <textarea id="event-photos"
-                    placeholder="https://example.com/photo1.jpg, https://example.com/photo2.jpg"></textarea>
-                </div>
-
-                <div class="form-actions">
-                  <button type="submit" class="btn btn-primary">Додати подію</button>
-                  <button type="button" class="btn btn-secondary" onclick="clearForm()">Очистити форму</button>
-                </div>
-              </form>
 
               <h3>Існуючі події</h3>
               <div class="event-list" id="admin-events-list">
@@ -350,6 +310,12 @@
     <script src="js/map.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/sheets.js"></script> <!-- Новий рядок -->
+
+    <!-- Індикатор синхронізації -->
+    <div id="sync-indicator" style="display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: #2563eb; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; z-index: 1000;">
+      🔄 Синхронізація...
+    </div>
+
   </body>
 
 </html>
