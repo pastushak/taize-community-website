@@ -113,6 +113,25 @@
             <!-- Секція карти -->
             <div class="map-container" id="map-section">
               <div id="map"></div>
+              <div id="loading-indicator" style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                text-align: center;
+                z-index: 1000;
+                display: none;
+              ">
+                <div style="font-size: 24px; margin-bottom: 10px;">🔄</div>
+                <div>Завантаження даних...</div>
+                <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                  Синхронізація з Google Sheets
+                </div>
+              </div>
             </div>
 
             <!-- Секція майбутніх подій -->

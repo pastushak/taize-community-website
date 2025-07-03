@@ -8,7 +8,7 @@ class AdminManager {
   constructor() {
     this.isInitialized = false;
     this.autoSyncInterval = null;
-    this.SYNC_INTERVAL = 12 * 60 * 60 * 1000; // 12 годин в мілісекундах
+    this.SYNC_INTERVAL = 30 * 60 * 1000;
     
     this.init();
   }
@@ -76,14 +76,12 @@ class AdminManager {
     try {
       const lastSync = localStorage.getItem('lastAutoSync');
       const now = Date.now();
+      const isFirstVisit = !localStorage.getItem('taizeEvents');
       
-      // Синхронізуємо, якщо:
-      // 1. Ніколи не синхронізувалися
-      // 2. Останя синхронізація була більше 12 годин тому
-      // 3. Локальних даних немає
       const shouldSync = !lastSync || 
                         (now - parseInt(lastSync)) > this.SYNC_INTERVAL ||
-                        !window.app.events.length;
+                        !window.app.events.length ||
+                        isFirstVisit;
 
       if (shouldSync) {
         console.log('🔄 Виконуємо початкову синхронізацію...');

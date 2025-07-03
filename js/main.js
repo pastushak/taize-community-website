@@ -25,6 +25,17 @@ class TaizeCommunityApp {
     try {
       console.log('Ініціалізація Taize Community App v' + this.VERSION);
 
+      // Показуємо індикатор завантаження для нових користувачів
+      const isFirstVisit = !localStorage.getItem('taizeEvents');
+      if (isFirstVisit) {
+        this.showLoadingIndicator();
+      }
+
+      await this.loadEvents();
+      
+      // Приховуємо індикатор
+      this.hideLoadingIndicator();
+
       await this.loadEvents();
       this.setupEventListeners();
       this.setupModals();
@@ -45,7 +56,7 @@ class TaizeCommunityApp {
     }
   }
 
-  /**
+    /**
    * Завантаження подій з localStorage або ініціалізація прикладами
    */
   async loadEvents() {
@@ -56,10 +67,17 @@ class TaizeCommunityApp {
         this.events = JSON.parse(savedEvents);
         console.log(`Завантажено ${this.events.length} подій з localStorage`);
       } else {
-        // Ініціалізація прикладами подій
-        this.events = this.getDefaultEvents();
+        // Спочатку завантажуємо з Google Sheets
+        console.log('🔄 Перше завантаження - синхронізація з Google Sheets...');
+        await this.loadFromSheetsFirst();
+        
+        // Якщо не вдалося - використовуємо приклади
+        if (this.events.length === 0) {
+          this.events = this.getDefaultEvents();
+          console.log('Ініціалізовано з прикладами подій');
+        }
+        
         await this.saveEvents();
-        console.log('Ініціалізовано з прикладами подій');
       }
 
       // Валідація та очищення даних
@@ -121,6 +139,50 @@ class TaizeCommunityApp {
         programLink: ""
       }
     ];
+  }
+
+    /**
+   * Завантаження з Google Sheets при першому відвідуванні
+   */
+  async loadFromSheetsFirst() {
+    try {
+      if (window.sheetsDB) {
+        const sheetsEvents = await window.sheetsDB.loadEvents();
+        if (sheetsEvents && sheetsEvents.length > 0) {
+          this.events = sheetsEvents;
+          console.log(`✅ Завантажено ${sheetsEvents.length} подій з Google Sheets`);
+          
+          // Показуємо повідомлення користувачу
+          this.showWelcomeMessage();
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Помилка завантаження з Sheets:', error);
+    }
+    
+    console.log('⚠️ Не вдалося завантажити з Google Sheets');
+  }
+
+  /**
+   * Вітальне повідомлення для нових користувачів
+   */
+  showWelcomeMessage() {
+    setTimeout(() => {
+      const message = `
+  🕊️ Вітаємо у спільноті Тезе!
+
+  Дані успішно завантажено з Google Sheets.
+  На карті відображені наші молитовні зустрічі.
+
+  Приєднуйтесь до нас! 🙏
+      `;
+      
+      if (confirm(message.trim())) {
+        // Можна додати перехід до майбутніх подій
+        this.showSection('future');
+      }
+    }, 1000);
   }
 
   /**
@@ -457,6 +519,26 @@ class TaizeCommunityApp {
     const modal = document.getElementById('event-modal');
     if (modal) {
       modal.style.display = 'block';
+    }
+  }
+
+    /**
+   * Показ індикатора завантаження
+   */
+  showLoadingIndicator() {
+    const indicator = document.getElementById('loading-indicator');
+    if (indicator) {
+      indicator.style.display = 'block';
+    }
+  }
+
+  /**
+   * Приховування індикатора завантаження
+   */
+  hideLoadingIndicator() {
+    const indicator = document.getElementById('loading-indicator');
+    if (indicator) {
+      indicator.style.display = 'none';
     }
   }
 
