@@ -48,6 +48,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+img {
+  loading: lazy;
+}
+
 /* Контейнер */
 .container {
   max-width: 1200px;
@@ -188,6 +192,7 @@ nav button.active::after {
   width: 100%;
   height: auto;
   position: relative;
+  contain: layout style paint;
 }
 
 /* Секції */
@@ -215,6 +220,7 @@ nav button.active::after {
   position: sticky;
   top: var(--spacing-lg);
   height: fit-content;
+  will-change: transform;
 }
 
 .sidebar-content {
@@ -1086,7 +1092,7 @@ textarea.success {
 
 /* Доступність */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

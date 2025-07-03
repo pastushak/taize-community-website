@@ -8,7 +8,7 @@ class AdminManager {
   constructor() {
     this.isInitialized = false;
     this.autoSyncInterval = null;
-    this.SYNC_INTERVAL = 30 * 60 * 1000;
+    this.SYNC_INTERVAL = 6 * 60 * 60 * 1000;
     
     this.init();
   }

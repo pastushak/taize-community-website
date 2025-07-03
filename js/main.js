@@ -16,6 +16,7 @@ class TaizeCommunityApp {
     this.openImageModal = this.openImageModal.bind(this);
 
     this.init();
+    this.debouncedRefreshUI = this.debounce(this._refreshUI.bind(this), 300);
   }
 
   /**
@@ -525,11 +526,32 @@ class TaizeCommunityApp {
     /**
    * Показ індикатора завантаження
    */
-  showLoadingIndicator() {
-    const indicator = document.getElementById('loading-indicator');
-    if (indicator) {
-      indicator.style.display = 'block';
+  showLoadingIndicator(message = 'Завантаження...') {
+    let indicator = document.getElementById('loading-indicator');
+    if (!indicator) {
+      indicator = this.createLoadingIndicator();
     }
+    indicator.querySelector('.loading-text').textContent = message;
+    indicator.style.display = 'block';
+  }
+
+  createLoadingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'loading-indicator';
+    indicator.innerHTML = `
+      <div class="loading-content">
+        <div class="loading-spinner">🔄</div>
+        <div class="loading-text">Завантаження...</div>
+      </div>
+    `;
+    indicator.style.cssText = `
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: white; padding: 20px; border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center;
+      z-index: 1000; display: none;
+    `;
+    document.body.appendChild(indicator);
+    return indicator;
   }
 
   /**
@@ -767,9 +789,25 @@ class TaizeCommunityApp {
   }
 
   /**
+   * Утиліта debouncing
+   */
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func.apply(this, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  /**
    * Оновлення всього інтерфейсу
    */
   refreshUI() {
+    this.debouncedRefreshUI();
     if (window.mapInstance && window.mapInstance.displayEventsOnMap) {
       window.mapInstance.displayEventsOnMap();
     }
@@ -782,6 +820,46 @@ class TaizeCommunityApp {
     } else if (this.currentSection === 'future') {
       this.updateFutureEventsList();
     }
+  }
+
+  _refreshUI() {
+    // Перевіряємо чи компонент ще активний
+    if (!this.isInitialized) return;
+
+    try {
+      // Оновлення карти (тільки якщо вона видима)
+      if (this.currentSection === 'map' && window.mapInstance?.displayEventsOnMap) {
+        window.mapInstance.displayEventsOnMap();
+      }
+
+      // Оновлення сайдбара
+      this.updateSidebar();
+
+      // Оновлення активної секції
+      switch (this.currentSection) {
+        case 'admin':
+          this.updateAdminEventsList();
+          break;
+        case 'future':
+          this.updateFutureEventsList();
+          break;
+        case 'media':
+          this.updateMediaList();
+          break;
+      }
+
+      console.log('✅ UI оновлено');
+      
+    } catch (error) {
+      console.error('❌ Помилка оновлення UI:', error);
+    }
+  }
+
+  /**
+   * Примусове оновлення без debouncing (для критичних випадків)
+   */
+  forceRefreshUI() {
+    this._refreshUI();
   }
 
   /**

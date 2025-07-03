@@ -14,6 +14,8 @@ class GoogleSheetsDB {
     
     this.isEnabled = true;
     this.lastSync = null;
+    this.cache = new Map();
+    this.CACHE_DURATION = 5 * 60 * 1000; // 5 хвилин
   }
 
   /**
@@ -22,6 +24,32 @@ class GoogleSheetsDB {
   async loadEvents() {
     if (!this.isEnabled) return [];
 
+    const cacheKey = 'events';
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.CACHE_DURATION) {
+      console.log('📦 Використовуємо кешовані дані');
+      return cached.data;
+    }
+
+    // Завантажуємо свіжі дані
+    const events = await this.fetchEventsFromSheets();
+    
+    // Кешуємо тільки якщо дані успішно завантажилися
+    if (events.length > 0) {
+      this.cache.set(cacheKey, {
+        data: events,
+        timestamp: Date.now()
+      });
+    }
+    
+    return events;
+  }
+
+  /**
+   * Окремий метод для завантаження з Sheets
+   */
+  async fetchEventsFromSheets() {
     try {
       console.log('🔄 Завантаження подій з Google Sheets...');
       
@@ -297,6 +325,40 @@ ${this.formatEventForSheet(event)}
       return `${diffHours} год. тому`;
     }
   }
+
+  /**
+   * Очищення кешу
+   */
+  clearCache() {
+    this.cache.clear();
+    console.log('🗑️ Кеш очищено');
+  }
+
+  /**
+   * Примусове оновлення (без кешу)
+   */
+  async forceLoadEvents() {
+    this.clearCache();
+    return await this.loadEvents();
+  }
+
+  /**
+   * Статус кешу
+   */
+  getCacheStatus() {
+    const cached = this.cache.get('events');
+    if (!cached) return 'Кеш порожній';
+    
+    const age = Date.now() - cached.timestamp;
+    const remaining = this.CACHE_DURATION - age;
+    
+    if (remaining > 0) {
+      const minutes = Math.floor(remaining / (1000 * 60));
+      return `Кеш дійсний ще ${minutes} хв.`;
+    } else {
+      return 'Кеш застарілий';
+    }
+  }
 }
 
 // Ініціалізація Google Sheets DB
@@ -332,5 +394,32 @@ function testSheetsConnection() {
 function toggleSheetsIntegration() {
   if (window.sheetsDB) {
     window.sheetsDB.toggleEnabled();
+  }
+}
+
+// Нові глобальні функції для роботи з кешем
+function clearSheetsCache() {
+  if (window.sheetsDB) {
+    window.sheetsDB.clearCache();
+    if (window.adminManager) {
+      window.adminManager.showSuccess('Кеш Google Sheets очищено');
+    }
+  }
+}
+
+function forceSyncFromSheets() {
+  if (window.sheetsDB) {
+    return window.sheetsDB.forceLoadEvents();
+  }
+}
+
+function showCacheStatus() {
+  if (window.sheetsDB) {
+    const status = window.sheetsDB.getCacheStatus();
+    if (window.adminManager) {
+      window.adminManager.showInfo(`📊 Статус кешу: ${status}`);
+    } else {
+      alert(`📊 Статус кешу: ${status}`);
+    }
   }
 }
